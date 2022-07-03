@@ -1,50 +1,37 @@
 const Task = require("../models/taskModels");
+const { createCustomError } = require("../errors/custom-error");
 
 const getAllTasks = async (req, res) => {
-  try {
-    const tasks = await Task.find({});
-    res.json(tasks);
-  } catch (error) {
-    res.status(500).json({ error });
-  }
+  const tasks = await Task.find({});
+  res.json(tasks);
 };
 const createTask = async (req, res) => {
-  try {
-    const task = await Task.create(req.body);
-    res.status(201).json(task);
-  } catch (error) {
-    res.status(500).json({ error });
-  }
+  const task = await Task.create(req.body);
+  res.status(201).json(task);
 };
-const updateTask = async (req, res) => {
+const updateTask = async (req, res, next) => {
   const { id } = req.params;
-  try {
-    const task = await Task.findOneAndUpdate({ _id: id }, req.body, {
-      new: true,
-      runValidators: true,
-    });
-    res.json({ task });
-  } catch (error) {
-    res.status(500).json({ msg: "something when wrong" });
+  const task = await Task.findOneAndUpdate({ _id: id }, req.body, {
+    new: true,
+    runValidators: true,
+  });
+  if (!task) {
+    return next(createCustomError(`No task with id : ${id}`, 404));
   }
+  res.json({ task });
 };
-const deleteTask = async (req, res) => {
+const deleteTask = async (req, res, next) => {
   const { id } = req.params;
-  try {
-    await Task.findOneAndDelete({ _id: id });
-    res.status(200).send({ msg: "success" });
-  } catch (error) {
-    res.status(500).json({ msg: "something when wrong" });
+  const task = await Task.findOneAndDelete({ _id: id });
+  if (!task) {
+    return next(createCustomError(`No task with id : ${id}`, 404));
   }
+  res.status(200).send({ msg: "success" });
 };
 
 const deteleAll = async (req, res) => {
-  try {
-    const task = await Task.deleteMany({});
-    res.status(200).send(task);
-  } catch (error) {
-    console.log(error);
-  }
+  const task = await Task.deleteMany({});
+  res.status(200).send(task);
 };
 
 module.exports = {

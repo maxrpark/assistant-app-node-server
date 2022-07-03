@@ -1,7 +1,12 @@
+require("dotenv").config();
+require("express-async-errors");
+
 const express = require("express");
 const taskRoutes = require("./routes/taskRoutes");
 const connectDB = require("./db/connectDB");
-require("dotenv").config();
+
+const errorHandler = require("./middleware/errorHandler");
+const notFound = require("./middleware/not-found");
 
 // security
 const helmet = require("helmet");
@@ -17,6 +22,7 @@ const app = express();
 //     max: 100,
 //   })
 // );
+
 app.use(express.json());
 app.use(helmet());
 app.use(cors());
@@ -28,12 +34,15 @@ app.get("/", (req, res) => {
 
 app.use("/api/v1/tasks", taskRoutes);
 
+app.use(notFound);
+app.use(errorHandler);
+
 const port = process.env.PORT || 5000;
 const startServer = async () => {
   try {
     await connectDB(process.env.MONGO_URL);
     app.listen(port, (req, res) => {
-      console.log(`app running on port ${5000}`);
+      console.log(`app running on port ${5000}!`);
     });
   } catch (error) {
     console.log(error);
