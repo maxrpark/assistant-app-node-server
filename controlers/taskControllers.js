@@ -5,8 +5,13 @@ const getAllTasks = async (req, res) => {
   const tasks = await Task.find({});
   res.json(tasks);
 };
-const createTask = async (req, res) => {
-  const task = await Task.create(req.body);
+const createTask = async (req, res, next) => {
+  const { name } = req.body;
+  if (!name) {
+    return next(createCustomError(`Name can not be empty`, 404));
+  }
+  console.log(name);
+  const task = await Task.create({ name });
   res.status(201).json(task);
 };
 const updateTask = async (req, res, next) => {
