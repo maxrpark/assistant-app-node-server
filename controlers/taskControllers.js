@@ -2,7 +2,7 @@ const Task = require("../models/taskModels");
 const { createCustomError } = require("../errors/custom-error");
 
 const getAllTasks = async (req, res) => {
-  const tasks = await Task.find({}).sort("createdAt");
+  const tasks = await Task.find({}).sort("-createdAt");
   res.json(tasks);
 };
 const createTask = async (req, res, next) => {
